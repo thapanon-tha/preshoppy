@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700&display=swap');
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Open Sans', sans-serif;
+    }
+    
+    body {
+        height: 100vh;
+        width: 100%;
+        background-image: linear-gradient(138deg, #c0392b, #f1c40f);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    form.container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    h2 {
+        margin: 20px;
+        color: #fff;
+        font-weight: 300;
+    }
+    
+    input {
+        border: none;
+        height: 50px;
+        width: 250px;
+        margin: 10px 0;
+        padding: 0 10px;
+        font-size: 1rem;
+        outline: none;
+        text-align: center;
+        border-radius: 5px;
+        transition: 5s;
+        cursor: pointer;
+    }
+    
+    .textbox {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .textbox::placeholder {
+        color: #fff;
+    }
+    
+    .textbox:hover,
+    .btn-submit:hover {
+        background: #fff;
+        color: #c0392b;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<body>
+    <Link rel="stylesheet" href="style.css">
+    <h1>HAAA</h1>
+    <form method="POST" action="/api/Events/addEvent" enctype="multipart/form-data">
+        <div class="file is-boxed is-centered">
+            <input type="file" name="file">
+        </div>
+        <div class="control">
+            <button type="submit">&emsp;อัพโหลด&emsp;</button>
+        </div>
+    </form>
+    <!-- <img src="http://localhost:3000/eventpic/120239325_3148028678640635_4201828937087108512_o.jpg"> -->
+
+</body>
+
+</html>

@@ -15,6 +15,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(upload());
 
 pathapis.use("/Events", api.Events);
+pathapis.use("/Login", api.Login);
+
 
 app.get('/tests', (req, res) => {
     return res.sendFile(__dirname + "/src/index.html")

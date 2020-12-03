@@ -33,10 +33,12 @@ router.get("/getEvent/:id", async(req, res) => {
 // * ADD EVENT
 router.post("/addEvent", async(req, res) => {
     let gID = uuidv4();
-    let event
-    event = JSON.parse(req.body.events)
-    console.log(event);
-
+    e_name = req.body.e_name
+    e_detail = req.body.e_detail
+    e_start_date = req.body.e_start_date
+    e_end_date = req.body.e_end_date
+    e_location = req.body.e_location
+    e_contacts = req.body.e_contacts
     if (req.files) {
         var file = req.files.file;
         var filename = gID + ".jpg";
@@ -52,7 +54,7 @@ router.post("/addEvent", async(req, res) => {
                 try {
                     await sql `INSERT INTO 
                         events  ( e_name, e_detail, e_start_date, e_end_date, e_location, e_contacts, e_img)
-                                    VALUES (${event.e_name}, ${event.e_detail}, ${event.e_start_date}, ${event.e_end_date}, ${event.e_location},${event.e_contacts},${pathimg} )`;
+                                    VALUES (${e_name}, ${e_detail}, ${e_start_date}, ${e_end_date}, ${e_location},${e_contacts},${pathimg} )`;
                     return res.sendStatus(200);
                 } catch (err) {
                     console.error(err);

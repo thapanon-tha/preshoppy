@@ -1,4 +1,3 @@
-const { json } = require('express');
 const { v4: uuidv4 } = require('uuid');
 const router = require("express").Router();
 const { sql } = require("../database");
@@ -35,7 +34,7 @@ router.get("/getEvent/:id", async(req, res) => {
 router.post("/addEvent", async(req, res) => {
     let gID = uuidv4();
     let event
-    event = req.body.events
+    event = JSON.parse(req.body.events)
     console.log(event);
 
     if (req.files) {
@@ -44,7 +43,7 @@ router.post("/addEvent", async(req, res) => {
         console.log(req.files.file)
             // ! Use when deploy to host //
             // const pathimg = "https://salty-hollows-37281.herokuapp.com/eventpic/" + filename
-        const pathimg = "https://localhost:3000/eventpic/" + filename
+        const pathimg = "localhost:3000/eventpic/" + filename
         console.log(pathimg);
         file.mv('./assets/eventpic/' + filename, async function(err) {
             if (err) {

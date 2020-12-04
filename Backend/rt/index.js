@@ -76,10 +76,10 @@ io.on("connection", (socket) => {
     }
   });
   socket.on("message", (msg) => {
-    const room = rooms.find(
-      room => room.id === roomId
-    );
     if (msg.trim()) {
+      const room = rooms.find(
+        room => room.id === roomId
+      );
       if (room.first.id !== localId) 
         room.first.socket.emit("message", msg);
       if (room.second.id !== localId) 

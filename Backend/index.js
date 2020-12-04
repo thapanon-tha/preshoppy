@@ -4,32 +4,31 @@ require("dotenv").config({
 
 const port = process.env.PORT || 3000;
 
+
+const http = require("http");
 const express = require("express");
 const upload = require("express-fileupload");
+const socketio = require("socket.io");
 const cors = require("cors");
-const helmet = require("helmet");
+
+const app = express();
+const httpServer = http.createServer(app);
+const io = socketio(httpServer);
+
+app.use(cors());
 
 const api = require("./api");
 
-const app = express();
-const pathapis = express.Router();
-
-app.use(cors());
-app.use(helmet());
-
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ 
+  extended: false 
+}));
 app.use(upload());
 
-app.use(express.static("assets"));
+app.use('/upload', express.static("./data/upload"));
 
 /* Router api */
-pathapis.use("/Events", api.Events);
-pathapis.use("/Login", api.Login);
-pathapis.use("/Register", api.Register);
-pathapis.use("/upgradeAcc", api.upgradeAcc);
-
-app.use("/api", pathapis);
+app.use("/api", api);
 
 /* trap for unused paths */
 app.get("/", (_req, res) => {
@@ -40,7 +39,14 @@ app.use((_req, res) => {
   res.sendStatus(501);
 });
 
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+
 /* set port for run server */ 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`Server is running on ${port}`);
 });

@@ -11,18 +11,20 @@ const pool = mariadb.createPool({
   database: process.env.DB_NAME,
 });
 
-module.exports = {
-  sql: async function (strings, ...keys) {
-    let conn, result;
-    try {
-      conn = await pool.getConnection();
-      result = await conn.query(strings.join("?"), keys);
-      conn.release();
-      return result;
-    } catch (err) {
-      throw err;
-    } finally {
-      if (conn) conn.end();
-    }
-  },
+const mod = {};
+mod.rawExec = async (command, values) => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const result = await conn.query(command, values);
+    conn.release();
+    return result;
+  } catch (err) {
+    throw err;
+  } finally {
+    if (conn) conn.end();
+  }
 };
+mod.exec = (parts, ...keys) => mod.rawExec(parts.join("?"), keys);
+
+module.exports = mod;

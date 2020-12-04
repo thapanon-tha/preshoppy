@@ -17,6 +17,7 @@ app.use(upload());
 pathapis.use("/Events", api.Events);
 pathapis.use("/Login", api.Login);
 pathapis.use("/Register", api.Register);
+pathapis.use("/upgradeAcc", api.upgradeAcc);
 
 app.get('/tests', (req, res) => {
     return res.sendFile(__dirname + "/src/index.html")

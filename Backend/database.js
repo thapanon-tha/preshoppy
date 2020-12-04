@@ -1,4 +1,7 @@
-require("dotenv").config({ silent: process.env.NODE_ENV === "production" });
+require("dotenv").config({
+  silent: process.env.NODE_ENV === "production" 
+});
+
 const mariadb = require("mariadb");
 
 const pool = mariadb.createPool({

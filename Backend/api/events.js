@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const router = require("express").Router();
 const { sql } = require("../database");
+const upload = require("./upload");
 
 
 
@@ -39,31 +40,22 @@ router.post("/addEvent", async(req, res) => {
     e_end_date = req.body.e_end_date
     e_location = req.body.e_location
     e_contacts = req.body.e_contacts
-    if (req.files) {
-        var file = req.files.file;
-        var filename = gID + ".jpg";
-        console.log(req.files.file)
-            // ! Use when deploy to host //
-            // const pathimg = "https://salty-hollows-37281.herokuapp.com/eventpic/" + filename
-        const pathimg = "localhost:3000/eventpic/" + filename
-        console.log(pathimg);
-        file.mv('./assets/eventpic/' + filename, async function(err) {
-            if (err) {
-                res.send(err);
-            } else {
-                try {
-                    await sql `INSERT INTO 
-                        events  ( e_name, e_detail, e_start_date, e_end_date, e_location, e_contacts, e_img)
-                                    VALUES (${e_name}, ${e_detail}, ${e_start_date}, ${e_end_date}, ${e_location},${e_contacts},${pathimg} )`;
-                    return res.sendStatus(200);
-                } catch (err) {
-                    console.error(err);
-                    return res.sendStatus(500);
-                }
-            }
-        })
+    var filename = gID + ".jpg";
+    path = './assets/eventpic/' + filename
+    let uploadStatus = await upload(path, req.files.file);
+    console.log(uploadStatus)
+    if (uploadStatus) {
+        try {
+            await sql `INSERT INTO 
+            events  ( e_name, e_detail, e_start_date, e_end_date, e_location, e_contacts, e_img)
+                        VALUES (${e_name}, ${e_detail}, ${e_start_date}, ${e_end_date}, ${e_location},${e_contacts},${filename} )`;
+            return res.sendStatus(200);
+        } catch (err) {
+            console.error(err);
+            return res.sendStatus(500);
+        }
     } else {
-        res.send("Has NO file");
+        return res.send(uploadStatus)
     }
 
 })

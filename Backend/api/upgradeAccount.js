@@ -19,15 +19,17 @@ router.post("/setStatus/:id", async(req, res) => {
     u_id = Number(req.params.id)
     status = req.body.status
     if (status == 0) {
+        //! set User Status to Accep and change role to Vendor
         try {
             await sql `UPDATE user 
-        SET u_vendor_status_uvsid = 2
+        SET u_vendor_status_uvsid = 2 , u_roles = 3
         WHERE u_id = ${u_id}`
             return res.sendStatus(200)
         } catch (err) {
             return res.send(err)
         }
     } else {
+        //! set User Status to Disaccep
         try {
             await sql `UPDATE user 
                 SET u_vendor_status_uvsid = 3

@@ -1,45 +1,46 @@
-require("dotenv").config({ silent: process.env.NODE_ENV === "production" });
+require("dotenv").config({ 
+  silent: process.env.NODE_ENV === "production" 
+});
+
 const port = process.env.PORT || 3000;
-const fetch = require("node-fetch")
-const express = require('express');
-const api = require("./api");
+
+const express = require("express");
+const upload = require("express-fileupload");
 const cors = require("cors");
 const helmet = require("helmet");
+
+const api = require("./api");
+
 const app = express();
 const pathapis = express.Router();
-const upload = require('express-fileupload');
+
 app.use(cors());
 app.use(helmet());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(upload());
 
+app.use(express.static("assets"));
+
+/* Router api */
 pathapis.use("/Events", api.Events);
 pathapis.use("/Login", api.Login);
 pathapis.use("/Register", api.Register);
 pathapis.use("/upgradeAcc", api.upgradeAcc);
 
-app.get('/tests', (req, res) => {
-    return res.sendFile(__dirname + "/src/index.html")
-})
-
-/* Router api */
 app.use("/api", pathapis);
 
-/* not impliment */
-app.get("/", (req, res) => {
-    res.sendStatus(200);
+/* trap for unused paths */
+app.get("/", (_req, res) => {
+  res.sendStatus(200);
 });
 
-app.use(express.static("assets"));
-
-app.use((req, res) => {
-    res.sendStatus(501);
+app.use((_req, res) => {
+  res.sendStatus(501);
 });
 
-
-
-///////// set port for run server///////////
+/* set port for run server */ 
 app.listen(port, () => {
-    console.log(`Server is running on ${port}`);
+  console.log(`Server is running on ${port}`);
 });

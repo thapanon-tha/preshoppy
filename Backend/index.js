@@ -18,6 +18,9 @@ const io = socketio(httpServer);
 app.use(cors());
 
 const api = require("./api");
+const rt = require("./rt");
+
+const { uploadPath } = require("./upload");
 
 app.use(express.json());
 app.use(express.urlencoded({ 
@@ -25,7 +28,7 @@ app.use(express.urlencoded({
 }));
 app.use(upload());
 
-app.use("/upload", express.static("./data/upload"));
+app.use("/upload", express.static(uploadPath));
 
 /* Router api */
 app.use("/api", api);
@@ -39,12 +42,7 @@ app.use((_req, res) => {
   res.sendStatus(501);
 });
 
-io.on("connection", (socket) => {
-  console.log("a user connected");
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
-});
+rt.attach(httpServer);
 
 /* set port for run server */ 
 httpServer.listen(port, () => {

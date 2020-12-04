@@ -51,12 +51,12 @@ const allowedExt = [
     "webp"
 ];
 
-const uploadHelper = (file, path) => {
-    if (!file) return false;
-    const dotFileExt = path.extname(file.name);
-    if (!dotFileExt) return false;
-    const fileExt = dotFileExt.slice(1);
-    if (!allowedExt.includes(fileExt)) return false;
+const uploadHelper = async (file, path) => {
+  if (!file) return false;
+  const dotFileExt = path.extname(file.name);
+  if (!dotFileExt) return false;
+  const fileExt = dotFileExt.slice(1);
+  if (!allowedExt.includes(fileExt)) return false;
 
     const fileName = uuidv4() + dotFileExt;
     const filePath = `${path}/${fileName}`;
@@ -70,8 +70,8 @@ router.post("/add/:id", async(req, res) => {
     try {
         const id = parseInt(req.params.id);
 
-        const idPicUpload = uploadHelper(idPic, `${uploadPath}/picture/id`);
-        const verifyPicUpload = uploadHelper(verifyPic, `${uploadPath}/picture/verify`);
+    const idPicUpload = await uploadHelper(idPic, `${uploadPath}/picture/id`);
+    const verifyPicUpload = await uploadHelper(verifyPic, `${uploadPath}/picture/verify`);
 
         if (idPicUpload && verifyPicUpload) {
             await database.exec `

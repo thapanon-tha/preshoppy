@@ -1,71 +1,94 @@
 const router = require("express").Router();
-
-const { sql } = require("../database");
-const upload = require("../upload");
-
 const { v4: uuidv4 } = require("uuid");
 
+const database = require("../database");
+const {
+    upload,
+    uploadPath
+} = require("../upload");
 
-router.get("/getQueue", async(req, res) => {
+router.get("/list", async(req, res) => {
     try {
-        inQueue = await sql `SELECT * FROM user WHERE u_vendor_status_uvsid = 4`
-        return res.send(inQueue)
+        const res = await database.exec `SELECT * FROM user WHERE u_vendor_status_uvsid = 4`;
+        return res.send(res);
     } catch (err) {
-        return res.send(err)
+        console.error(err);
+        return res.sendStatus(500);
     }
-})
+});
 
-router.post("/setStatus/:id", async(req, res) => {
-    u_id = Number(req.params.id)
-    status = req.body.status
-    if (status == 0) {
-        //! set User Status to Accep and change role to Vendor
-        try {
-            await sql `UPDATE user 
-        SET u_vendor_status_uvsid = 2 , u_roles = 3
-        WHERE u_id = ${u_id}`
-            return res.sendStatus(200)
-        } catch (err) {
-            return res.send(err)
-        }
-    } else {
-        //! set User Status to Disaccep
-        try {
-            await sql `UPDATE user 
-                SET u_vendor_status_uvsid = 3
-                WHERE u_id = ${u_id}`
-            return res.sendStatus(200)
-        } catch (err) {
-            return res.send(err)
-        }
-    }
-})
+const statusNumLookup = {
+    0: 3,
+    1: 2
+};
 
-
-router.post("/addQueue/:id", async(req, res) => {
+router.post("/set/:id", async(req, res) => {
     try {
-        u_id = Number(req.params.id)
-        let gID = uuidv4();
-        var filename = gID + ".jpg";
-        id_path = "./assets/ID_pic/" + filename
-        command_path = "./assets/Command_pic/" + filename
-        uploadIDStatus = upload(id_path, req.files.id_pic);
-        uploadCOMMANDStatus = upload(command_path, req.files.command_pic);
-        if (uploadIDStatus && uploadCOMMANDStatus) {
-            try {
-                await sql `UPDATE user
-                        SET u_id_img = ${filename} , u_command_img = ${filename} , u_vendor_status_uvsid = 4
-                        WHERE u_id = ${u_id}`;
-                return res.sendStatus(200);
-            } catch (err) {
-                return res.send(err);
-            }
+        const id = parseInt(req.params.id);
+        const status = parseInt(req.body.status);
+
+        if (!status in statusNumLookup) return res.sendStatus(400);
+
+        const statusNum = statusNumLookup[status];
+        await database.exec `
+UPDATE user 
+SET u_vendor_status_uvsid = ${statusNum}
+WHERE u_id = ${id}
+`;
+        return res.sendStatus(200)
+    } catch (err) {
+        console.error(err);
+        return res.sendStatus(500);
+    }
+});
+
+const allowedExt = [
+    "jpg",
+    "jpeg",
+    "png",
+    "bmp",
+    "gif",
+    "webp"
+];
+
+const uploadHelper = (file, path) => {
+    if (!file) return false;
+    const dotFileExt = path.extname(file.name);
+    if (!dotFileExt) return false;
+    const fileExt = dotFileExt.slice(1);
+    if (!allowedExt.includes(fileExt)) return false;
+
+    const fileName = uuidv4() + dotFileExt;
+    const filePath = `${path}/${fileName}`;
+    await upload(file, filePath);
+    return fileName;
+};
+
+router.post("/add/:id", async(req, res) => {
+    const { idPic, verifyPic } = req.files;
+
+    try {
+        const id = parseInt(req.params.id);
+
+        const idPicUpload = uploadHelper(idPic, `${uploadPath}/picture/id`);
+        const verifyPicUpload = uploadHelper(verifyPic, `${uploadPath}/picture/verify`);
+
+        if (idPicUpload && verifyPicUpload) {
+            await database.exec `
+  UPDATE user
+  SET u_id_img = ${idPicUpload}, 
+  u_command_img = ${verifyPicUpload}, 
+  u_vendor_status_uvsid = 4
+  WHERE u_id = ${u_id}
+  `;
+            return res.sendStatus(200);
         } else {
-            return res.send("fail add");
+            res.sendStatus(400);
         }
     } catch (err) {
-        return res.send(err);
+        console.error(err);
+        return res.sendStatus(500);
     }
-})
+});
 
 module.exports = router;

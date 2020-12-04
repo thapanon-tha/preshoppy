@@ -25,7 +25,7 @@ app.use(express.urlencoded({
 }));
 app.use(upload());
 
-app.use('/upload', express.static("./data/upload"));
+app.use("/upload", express.static("./data/upload"));
 
 /* Router api */
 app.use("/api", api);
@@ -39,10 +39,10 @@ app.use((_req, res) => {
   res.sendStatus(501);
 });
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
   });
 });
 

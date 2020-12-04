@@ -13,7 +13,6 @@ const cors = require("cors");
 
 const app = express();
 const httpServer = http.createServer(app);
-const io = socketio(httpServer);
 
 app.use(cors());
 

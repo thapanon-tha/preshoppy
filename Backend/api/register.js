@@ -19,7 +19,7 @@ router.post("/", async(req, res) => {
             try {
                 await sql `INSERT INTO 
             user  (  u_tel, u_password, u_email, u_firstname, u_lastname, u_role_urid, u_verdor_command_uvcid, u_vendor_status_uvsid, u_profile)
-                        VALUES (${u_tel},${u_password},${u_email},${u_fristname},${u_lastname},4,1,1,${path})`;
+                        VALUES (${u_tel},${u_password},${u_email},${u_fristname},${u_lastname},4,1,1,${filename})`;
                 return res.sendStatus(200);
             } catch (err) {
                 return res.send(err);

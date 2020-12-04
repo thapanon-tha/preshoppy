@@ -3,7 +3,42 @@ const { sql } = require("../database");
 const upload = require("./upload");
 const { v4: uuidv4 } = require('uuid');
 
-router.post("/:id", async(req, res) => {
+
+router.get("/getQuere", async(req, res) => {
+    try {
+        inQuere = await sql `SELECT * FROM user WHERE u_vendor_status_uvsid = 4`
+        return res.send(inQuere)
+    } catch (err) {
+        return res.send(err)
+    }
+})
+
+router.post("/setStatus/:id", async(req, res) => {
+    u_id = Number(req.params.id)
+    status = req.body.status
+    if (status == 0) {
+        try {
+            await sql `UPDATE user 
+        SET u_vendor_status_uvsid = 2
+        WHERE u_id = ${u_id}`
+            return res.sendStatus(200)
+        } catch (err) {
+            return res.send(err)
+        }
+    } else {
+        try {
+            await sql `UPDATE user 
+                SET u_vendor_status_uvsid = 3
+                WHERE u_id = ${u_id}`
+            return res.sendStatus(200)
+        } catch (err) {
+            return res.send(err)
+        }
+    }
+})
+
+
+router.post("/addQuere/:id", async(req, res) => {
     try {
         u_id = Number(req.params.id)
         let gID = uuidv4();

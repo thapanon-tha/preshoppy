@@ -6,7 +6,6 @@
     "scripts": {
         "start": "nodemon --watch src index --watch api"
     },
-    "author": "",
     "license": "ISC",
     "dependencies": {
         "bcrypt": "^5.0.0",

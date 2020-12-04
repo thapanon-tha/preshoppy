@@ -6,7 +6,7 @@ function upload(file, path) {
         (err) => {
           if (err) 
             return rej(err);
-          res(true);
+          res();
         }
       );
     }

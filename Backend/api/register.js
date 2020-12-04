@@ -9,6 +9,15 @@ const {
   uploadPath 
 } = require("../upload");
 
+const allowedExt = [
+  "jpg",
+  "jpeg",
+  "png",
+  "bmp",
+  "gif",
+  "webp"
+];
+
 router.post("/", async (req, res) => {
   const {
     email, 
@@ -20,9 +29,9 @@ router.post("/", async (req, res) => {
   const { file } = req.files;
 
   try {
-    const hasher = crypto.createHash('SHA3-512');
+    const hasher = crypto.createHash("SHA3-512");
     hasher.update(password);
-    const hashedPassword = hasher.digest('hex');
+    const hashedPassword = hasher.digest("hex");
 
     if (!file) return res.sendStatus(400);
     const dotFileExt = path.extname(file.name);
@@ -40,8 +49,9 @@ VALUES (${email}, ${hashedPassword}, ${firstName}, ${lastName}, ${tel}, ${fileNa
 `;
     return res.sendStatus(200);
   } catch (err) {
-    return res.send(err);
+    console.error(err);
+    return res.sendStatus(500);
   }
-})
+});
 
 module.exports = router;

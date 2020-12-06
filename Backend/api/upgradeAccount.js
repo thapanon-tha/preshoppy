@@ -20,26 +20,32 @@ router.get("/list", async(req, resp) => {
 
 const statusNumLookup = {
     0: 3,
-    1: 2
+    1: 2,
+    2: 4
 };
 
-router.post("/set/:id", async(req, res) => {
+router.post("/set/:id", async (req, resp) => {
     try {
         const id = parseInt(req.params.id);
         const status = parseInt(req.body.status);
 
-        if (!status in statusNumLookup) return res.sendStatus(400);
+        if (!status in statusNumLookup) return resp.sendStatus(400);
 
         const statusNum = statusNumLookup[status];
-        await database.exec `
+        if (!statusNum) return resp.sendStatus(400);
+        
+        const res = await database.exec `
 UPDATE user 
 SET u_vendor_status_uvsid = ${statusNum}
-WHERE u_id = ${id}
+WHERE u_id = ${id} AND u_vendor_status_uvsid = 4
 `;
-        res.sendStatus(200)
+        if (res.affectedRows === 1)
+            resp.sendStatus(200);
+        else
+            resp.sendStatus(400);
     } catch (err) {
         console.error(err);
-        res.sendStatus(500);
+        resp.sendStatus(500);
     }
 });
 

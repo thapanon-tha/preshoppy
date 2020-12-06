@@ -55,21 +55,32 @@ router.post("/setPaymentStatus/:id", async(req, res) => {
 router.post("/setTrackingnumberStatus/:id", async(req, res) => {
     const t_id = parseInt(req.params.id);
     const trackingnumber = req.body.trackingnumber
-    try {
-        await database.exec `UPDATE transections 
-        SET t_status_tsid = 3 ,t_tracking_id = ${trackingnumber}
-        WHERE t_id = ${t_id}`;
-        return res.sendStatus(200)
-    } catch (err) { return res.send(err) }
+    if (!trackingnumber) return res.sendStatus(400);
+    else {
+        try {
+            const status = await database.exec `SELECT t_status_tsid FROM transactions WHERE t_id = ${t_id}`;
+            if (status[0].t_status_tsid !== 2) return res.sendStatus(400);
+            else {
+                await database.exec `UPDATE transections 
+      SET t_status_tsid = 3 ,t_tracking_id = ${trackingnumber}
+      WHERE t_id = ${t_id}`;
+                return res.sendStatus(200)
+            }
+        } catch (err) { return res.send(err) }
+    }
 })
 
 router.post("/setAcceptStatus/:id", async(req, res) => {
     const t_id = parseInt(req.params.id);
     try {
-        await database.exec `UPDATE transections 
-        SET t_status_tsid = 4
-        WHERE t_id = ${t_id}`;
-        return res.sendStatus(200)
+        const status = await database.exec `SELECT t_status_tsid FROM transactions WHERE t_id = ${t_id}`;
+        if (status[0].t_status_tsid !== 3) return res.sendStatus(400);
+        else {
+            await database.exec `UPDATE transections 
+                          SET t_status_tsid = 4
+                          WHERE t_id = ${t_id}`;
+            return res.sendStatus(200)
+        }
     } catch (err) { return res.send(err) }
 })
 

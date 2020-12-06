@@ -11,6 +11,12 @@ const pool = mariadb.createPool({
     database: process.env.DB_NAME,
 });
 
+pool.on(
+    'connection', 
+    (conn) => 
+        console.log(`connection ${conn.threadId} has been created in pool`)
+);
+
 const mod = {};
 mod.rawExec = async (command, values) => {
     let conn;

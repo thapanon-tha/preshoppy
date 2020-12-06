@@ -68,7 +68,7 @@ const uploadPicHelper = async (file, path) => {
     return fileName;
 };
 
-router.post("/add/:id", async(req, res) => {
+router.post("/add/:id", async (req, resp) => {
     const { 
         id_pic: idPic, 
         verify_pic: verifyPic 
@@ -83,20 +83,23 @@ router.post("/add/:id", async(req, res) => {
 
         if (idPicUpload && verifyPicUpload) {
             /* record to database */
-            await database.exec `
+            const res = await database.exec`
 UPDATE user
 SET u_id_img = ${idPicUpload}, 
 u_command_img = ${verifyPicUpload}, 
 u_vendor_status_uvsid = 4
-WHERE u_id = ${id}
+WHERE u_id = ${id} AND u_vendor_status_uvsid = 1
 `;
-            res.sendStatus(200);
+            if (res.affectedRows === 1)
+                resp.sendStatus(200);
+            else
+                resp.sendStatus(400);
         } else {
-            res.sendStatus(400);
+            resp.sendStatus(400);
         }
     } catch (err) {
         console.error(err);
-        res.sendStatus(500);
+        resp.sendStatus(500);
     }
 });
 

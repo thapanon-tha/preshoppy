@@ -8,33 +8,31 @@ CREATE TABLE `events` (
   `e_id` int(11) NOT NULL,
   `e_name` varchar(256) NOT NULL,
   `e_detail` text NOT NULL,
-  `e_start_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `e_end_date` timestamp NULL DEFAULT NULL,
+  `e_start_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `e_end_date` datetime NULL DEFAULT NULL,
   `e_location` varchar(256) NOT NULL,
-  `e_contacts` text NOT NULL,
-  `e_img` text NOT NULL
+  `e_contacts` varchar(512) NOT NULL,
+  `e_img` varchar(128) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 INSERT INTO `events` (`e_id`, `e_name`, `e_detail`, `e_start_date`, `e_end_date`, `e_location`, `e_contacts`, `e_img`) VALUES
 (1, 'สััปดาห์หนังสือแห่งชาติ', 'งานขายหนังสือที่ใหญ่ที่สุดในประเทษไทย', '2001-10-10 13:10:10', '2001-10-10 13:10:10', 'IMPACT เมืองทองทานี', '', '66f2115b-1c0f-4efd-8da4-b381bd35f40c.jpg');
 CREATE TABLE `massages` (
   `m_id` int(11) NOT NULL,
-  `m_timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `m_timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `m_contents` text NOT NULL,
   `m_sender_uid` int(11) NOT NULL,
   `m_receiver_uid` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `transactions` (
   `t_id` int(11) NOT NULL,
-  `t_timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `t_timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `t_receipt` varchar(256) DEFAULT NULL,
   `t_tracking_id` varchar(128) DEFAULT NULL,
-  `t_evend_eid` int(11) NOT NULL,
+  `t_event_eid` int(11) NOT NULL,
   `t_vendor_uid` int(11) NOT NULL,
   `t_customer_uid` int(11) NOT NULL,
   `t_status_tsid` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-INSERT INTO `transactions` (`t_id`, `t_timestamp`, `t_receipt`, `t_tracking_id`, `t_evend_eid`, `t_vendor_uid`, `t_customer_uid`, `t_status_tsid`) VALUES
-(3, '0000-00-00 00:00:00', '', NULL, 1, 1, 3, 1);
 CREATE TABLE `transaction_item` (
   `ti_id` int(11) NOT NULL,
   `ti_item` varchar(45) NOT NULL,
@@ -108,27 +106,27 @@ ALTER TABLE `events`
   ADD PRIMARY KEY (`e_id`);
 ALTER TABLE `massages`
   ADD PRIMARY KEY (`m_id`),
-  ADD KEY `fkIdx_63` (`m_sender_uid`),
-  ADD KEY `fkIdx_66` (`m_receiver_uid`);
+  ADD KEY `FK_63` (`m_sender_uid`),
+  ADD KEY `FK_66` (`m_receiver_uid`);
 ALTER TABLE `transactions`
   ADD PRIMARY KEY (`t_id`),
-  ADD KEY `fkIdx_85` (`t_evend_eid`),
-  ADD KEY `fkIdx_88` (`t_vendor_uid`),
-  ADD KEY `fkIdx_91` (`t_customer_uid`),
-  ADD KEY `fkIdx_99` (`t_status_tsid`);
+  ADD KEY `FK_85` (`t_event_eid`),
+  ADD KEY `FK_88` (`t_vendor_uid`),
+  ADD KEY `FK_91` (`t_customer_uid`),
+  ADD KEY `FK_99` (`t_status_tsid`);
 ALTER TABLE `transaction_item`
   ADD PRIMARY KEY (`ti_id`),
-  ADD KEY `fkIdx_110` (`ti_tid`);
+  ADD KEY `FK_110` (`ti_tid`);
 ALTER TABLE `transaction_status`
   ADD PRIMARY KEY (`ts_id`);
 ALTER TABLE `user`
   ADD PRIMARY KEY (`u_id`),
-  ADD KEY `fkIdx_36` (`u_role_urid`),
-  ADD KEY `fkIdx_47` (`u_vendor_command_uvcid`),
-  ADD KEY `fkIdx_55` (`u_vendor_status_uvsid`);
+  ADD KEY `FK_36` (`u_role_urid`),
+  ADD KEY `FK_47` (`u_vendor_command_uvcid`),
+  ADD KEY `FK_55` (`u_vendor_status_uvsid`);
 ALTER TABLE `user_address`
   ADD PRIMARY KEY (`us_id`),
-  ADD KEY `fkIdx_129` (`us_uid`);
+  ADD KEY `FK_129` (`us_uid`);
 ALTER TABLE `user_roles`
   ADD PRIMARY KEY (`ur_id`);
 ALTER TABLE `user_vendor_command`
@@ -136,13 +134,13 @@ ALTER TABLE `user_vendor_command`
 ALTER TABLE `user_vendor_status`
   ADD PRIMARY KEY (`uvs_status`);
 ALTER TABLE `events`
-  MODIFY `e_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `e_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 ALTER TABLE `transactions`
-  MODIFY `t_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `t_id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `transaction_item`
-  MODIFY `ti_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ti_id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `user`
-  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `user_address`
   MODIFY `us_id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `user_vendor_command`
@@ -153,7 +151,7 @@ ALTER TABLE `massages`
   ADD CONSTRAINT `FK_63` FOREIGN KEY (`m_sender_uid`) REFERENCES `user` (`u_id`),
   ADD CONSTRAINT `FK_66` FOREIGN KEY (`m_receiver_uid`) REFERENCES `user` (`u_id`);
 ALTER TABLE `transactions`
-  ADD CONSTRAINT `FK_85` FOREIGN KEY (`t_evend_eid`) REFERENCES `events` (`e_id`),
+  ADD CONSTRAINT `FK_85` FOREIGN KEY (`t_event_eid`) REFERENCES `events` (`e_id`),
   ADD CONSTRAINT `FK_88` FOREIGN KEY (`t_vendor_uid`) REFERENCES `user` (`u_id`),
   ADD CONSTRAINT `FK_91` FOREIGN KEY (`t_customer_uid`) REFERENCES `user` (`u_id`),
   ADD CONSTRAINT `FK_99` FOREIGN KEY (`t_status_tsid`) REFERENCES `transaction_status` (`ts_id`);

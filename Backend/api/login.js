@@ -18,10 +18,11 @@ router.post("/", async (req, res) => {
 
         /* find user */
         const users = await database.exec`SELECT u_id FROM user WHERE u_email = ${email} AND u_password = ${hashedPassword}`;
+        res.setHeader("content-type", "text/plain");
         if (users.length === 1) 
-            res.send("OK");
+            res.sendStatus(200);
         else 
-            res.send("failed");
+            res.sendStatus(403);
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

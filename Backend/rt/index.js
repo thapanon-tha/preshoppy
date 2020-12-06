@@ -2,12 +2,12 @@ const socketio = require("socket.io");
 const io = socketio();
 
 const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-    'abcdefghijklmnopqrstuvwxyz' +
-    '0123456789';
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+    "abcdefghijklmnopqrstuvwxyz" +
+    "0123456789";
 
 const makeId = (length) => {
-    let result = '';
+    let result = "";
     for (let i = 0; i < length; i++) {
         result += characters[
             Math.floor(

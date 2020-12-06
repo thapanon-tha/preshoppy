@@ -52,10 +52,10 @@ router.post("/", async (req, res) => {
 INSERT INTO user (u_email, u_password, u_firstname, u_lastname, u_tel, u_profile, u_role_urid, u_vendor_command_uvcid, u_vendor_status_uvsid)
 VALUES (${email}, ${hashedPassword}, ${firstName}, ${lastName}, ${tel}, ${fileName}, 4, 1, 1);
 `;
-        return res.sendStatus(200);
+        res.sendStatus(200);
     } catch (err) {
         console.error(err);
-        return res.sendStatus(500);
+        res.sendStatus(500);
     }
 });
 

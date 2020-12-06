@@ -8,13 +8,13 @@ const {
     uploadPath
 } = require("../upload");
 
-router.get("/list", async(req, res) => {
+router.get("/list", async(req, resp) => {
     try {
-        const res = await database.exec `SELECT * FROM user WHERE u_vendor_status_uvsid = 4`;
-        return res.send(res);
+        const res = await database.exec `SELECT u_id, u_firstname, u_lastname, u_reputation, u_profile, u_id_img, u_command_img FROM user WHERE u_vendor_status_uvsid = 4`;
+        resp.json(res);
     } catch (err) {
         console.error(err);
-        return res.sendStatus(500);
+        resp.sendStatus(500);
     }
 });
 
@@ -36,10 +36,10 @@ UPDATE user
 SET u_vendor_status_uvsid = ${statusNum}
 WHERE u_id = ${id}
 `;
-        return res.sendStatus(200)
+        res.sendStatus(200)
     } catch (err) {
         console.error(err);
-        return res.sendStatus(500);
+        res.sendStatus(500);
     }
 });
 
@@ -70,8 +70,8 @@ const uploadPicHelper = async (file, path) => {
 
 router.post("/add/:id", async(req, res) => {
     const { 
-        idPic, 
-        verifyPic 
+        id_pic: idPic, 
+        verify_pic: verifyPic 
     } = req.files;
 
     try {
@@ -88,7 +88,7 @@ UPDATE user
 SET u_id_img = ${idPicUpload}, 
 u_command_img = ${verifyPicUpload}, 
 u_vendor_status_uvsid = 4
-WHERE u_id = ${u_id}
+WHERE u_id = ${id}
 `;
             res.sendStatus(200);
         } else {

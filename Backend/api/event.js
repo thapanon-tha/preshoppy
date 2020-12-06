@@ -134,7 +134,7 @@ router.post("/delete/:id", async (req, res) => {
         }
     } catch (err) {
         console.error(err);
-        return res.sendStatus(500);
+        res.sendStatus(500);
     }
 });
 

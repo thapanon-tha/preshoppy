@@ -21,17 +21,17 @@ const makeId = (length) => {
 /*
 rooms:
 [
-  {
-    id: string,
-    first: {
-      id: number,
-      socket: socket,
-    },
-    second: {
-      id: number,
-      socket: socket
+    {
+        id: string,
+        first: {
+            id: number,
+            socket: socket,
+        },
+        second: {
+            id: number,
+            socket: socket
+        }
     }
-  }
 ]
 */
 const rooms = [];
@@ -49,8 +49,8 @@ io.on("connection", (socket) => {
         /* find room */
         const roomIndex = rooms.findIndex(
             room =>
-            room.first.id === remoteId &&
-            room.second.id === localId
+                room.first.id === remoteId &&
+                room.second.id === localId
         );
         if (roomIndex !== -1) {
             /* found room */
@@ -77,9 +77,7 @@ io.on("connection", (socket) => {
     });
     socket.on("message", (msg) => {
         if (msg.trim()) {
-            const room = rooms.find(
-                room => room.id === roomId
-            );
+            const room = rooms.find(room => room.id === roomId);
             if (room.first.id !== localId)
                 room.first.socket.emit("message", msg);
             if (room.second.id !== localId)
@@ -88,16 +86,14 @@ io.on("connection", (socket) => {
     });
     socket.on("disconnect", () => {
         /* find room */
-        const roomIndex = rooms.findIndex(
-            room => room.id === roomId
-        );
+        const roomIndex = rooms.findIndex(room => room.id === roomId);
         if (roomIndex !== -1) {
             const room = rooms[roomIndex];
             /* remove room */
             rooms.splice(roomIndex, 1);
             /* disconnect peers */
-            room.first.socket ? .disconnect(true);
-            room.second.socket ? .disconnect(true);
+            room.first.socket?.disconnect(true);
+            room.second.socket?.disconnect(true);
         }
         console.log("user disconnected");
     });

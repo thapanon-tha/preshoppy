@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const database = require("../database");
 const {
     upload,
+    uploadExtChecker,
     uploadPath
 } = require("../upload");
 
@@ -42,52 +43,60 @@ WHERE u_id = ${id}
     }
 });
 
-const allowedExt = [
-    "jpg",
-    "jpeg",
-    "png",
-    "bmp",
-    "gif",
-    "webp"
-];
+const uploadPicExtsOpts = {
+    allowedExts: [
+        "jpg",
+        "jpeg",
+        "png",
+        "bmp",
+        "gif",
+        "webp"
+    ]
+};
 
-const uploadHelper = async (file, path) => {
-  if (!file) return false;
-  const dotFileExt = path.extname(file.name);
-  if (!dotFileExt) return false;
-  const fileExt = dotFileExt.slice(1);
-  if (!allowedExt.includes(fileExt)) return false;
+const uploadPicHelper = async (file, path) => {
+    if (!file) return false;
+
+    const dotFileExt = uploadExtChecker(file.name, uploadPicExtsOpts);
+
+    if (!dotFileExt) return false;
 
     const fileName = uuidv4() + dotFileExt;
     const filePath = `${path}/${fileName}`;
     await upload(file, filePath);
+
     return fileName;
 };
 
 router.post("/add/:id", async(req, res) => {
-    const { idPic, verifyPic } = req.files;
+    const { 
+        idPic, 
+        verifyPic 
+    } = req.files;
 
     try {
         const id = parseInt(req.params.id);
 
-    const idPicUpload = await uploadHelper(idPic, `${uploadPath}/picture/id`);
-    const verifyPicUpload = await uploadHelper(verifyPic, `${uploadPath}/picture/verify`);
+        /* upload evidence that use to verify identity of account */
+        const idPicUpload = await uploadPicHelper(idPic, `${uploadPath}/picture/id`);
+        const verifyPicUpload = await uploadPicHelper(verifyPic, `${uploadPath}/picture/verify`);
 
         if (idPicUpload && verifyPicUpload) {
+            /* record to database */
             await database.exec `
-  UPDATE user
-  SET u_id_img = ${idPicUpload}, 
-  u_command_img = ${verifyPicUpload}, 
-  u_vendor_status_uvsid = 4
-  WHERE u_id = ${u_id}
-  `;
-            return res.sendStatus(200);
+UPDATE user
+SET u_id_img = ${idPicUpload}, 
+u_command_img = ${verifyPicUpload}, 
+u_vendor_status_uvsid = 4
+WHERE u_id = ${u_id}
+`;
+            res.sendStatus(200);
         } else {
             res.sendStatus(400);
         }
     } catch (err) {
         console.error(err);
-        return res.sendStatus(500);
+        res.sendStatus(500);
     }
 });
 

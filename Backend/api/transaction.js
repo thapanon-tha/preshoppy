@@ -28,7 +28,7 @@ router.post("/create", async(req, res) => {
 
     try {
         await database.exec `
-INSERT INTO transections (t_event_eid, t_vendor_uid, t_customer_uid, t_status_tsid)
+INSERT INTO transactions (t_event_eid, t_vendor_uid, t_customer_uid, t_status_tsid)
 VALUES (${event_eid}, ${vendor_uid}, ${customer_uid}, 1)
 `;
         res.sendStatus(200);
@@ -47,7 +47,7 @@ router.post("/addItem/:id", async(req, res) => {
     try {
         for (const item of items)
             await database.exec `
-INSERT INTO transection_item (ti_item, ti_quantity, ti_price, ti_details, ti_tid) 
+INSERT INTO transaction_item (ti_item, ti_quantity, ti_price, ti_details, ti_tid) 
 VALUES (${item.name}, ${item.quantity}, ${item.price}, ${item.details}, ${id})
 `;
         res.sendStatus(200);
@@ -56,11 +56,46 @@ VALUES (${item.name}, ${item.quantity}, ${item.price}, ${item.details}, ${id})
     }
 })
 
+const editableKeys = [
+    "name",
+    "quantity",
+    "price",
+    "details",
+    "id"
+];
+
+router.post("/edit/:id", async(req, res) => {
+    const t_id = parseInt(req.params.id, 10);
+    const updateBody = req.body;
+    try {
+        const updateKeys = [];
+        const updateValues = [];
+        for (const key of editableKeys)
+            if (key in updateBody) {
+                const value = updateBody[key];
+                updateKeys.push(`e_${key} = ?`);
+                updateValues.push(value);
+            }
+        if (updateKeys.length === 0) return res.sendStatus(400);
+        const updateKeyString = updateKeys.join(",");
+        const ret = await database.rawExec(`UPDATE transaction_item SET ${updateKeyString} WHERE e_id = ? AND t_id = ${t_id}`, updateValues);
+
+        if (ret.affectedRows === 1)
+            res.sendStatus(200);
+        else
+            res.sendStatus(400);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+
 router.get("/get/:id", async(req, res) => {
     const id = parseInt(req.params.id);
     try {
-        const trans = await database.exec `SELECT * from transections WHERE t_id = ${id}`;
-        const items = await database.exec `SELECT * from transection_item WHERE ti_tid = ${id}`;
+        const trans = await database.exec `SELECT * from transactions WHERE t_id = ${id}`;
+        const items = await database.exec `SELECT * from transaction_item WHERE ti_tid = ${id}`;
         return res.json({
             ...trans,
             items
@@ -85,9 +120,9 @@ router.post("/setPaymentStatus/:id", async(req, resp) => {
     await upload(file, filePath);
 
     try {
-        let checkStatus = await database.exec `SELECT t_status_tsid FROM transections WHERE t_id = ${id}`
+        let checkStatus = await database.exec `SELECT t_status_tsid FROM transactions WHERE t_id = ${id}`
         if (checkStatus[0].t_status_tsid != 1) resp.sendStatus(400)
-        const res = await database.exec `UPDATE transections    SET t_status_tsid = 2 , t_receipt = ${fileName} WHERE t_id = ${id}`;
+        const res = await database.exec `UPDATE transactions    SET t_status_tsid = 2 , t_receipt = ${fileName} WHERE t_id = ${id}`;
         if (res.affectedRows === 1)
             resp.sendStatus(200)
         else
@@ -109,7 +144,7 @@ router.post("/setTrackingNumber/:id", async(req, resp) => {
 
     try {
         const res = await database.exec `
-UPDATE transections
+UPDATE transactions
 SET t_status_tsid = 3, 
 t_tracking_id = ${trackingNumber}
 WHERE t_id = ${t_id} AND t_status_tsid = 2
@@ -128,7 +163,7 @@ router.post("/setAcceptStatus/:id", async(req, resp) => {
     try {
         const t_id = parseInt(req.params.id);
         const res = await database.exec `
-UPDATE transections
+UPDATE transactions
 SET t_status_tsid = 4
 WHERE t_id = ${t_id} AND t_status_tsid = 3
 `;

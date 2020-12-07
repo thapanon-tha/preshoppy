@@ -7,7 +7,7 @@ const Register = require("./register");
 
 const UpgradeAccount = require("./upgradeAccount");
 
-const Transaction = require("./transaction");
+const Transection = require("./transection");
 
 
 router.use("/event", Events);
@@ -17,6 +17,6 @@ router.use("/register", Register);
 
 router.use("/upgradeAccount", UpgradeAccount);
 
-router.use("/transaction", Transaction);
+router.use("/transection", Transection);
 
 module.exports = router;

@@ -1,5 +1,23 @@
 const router = require("express").Router();
 const database = require("../database");
+const { v4: uuidv4 } = require("uuid");
+
+const {
+    upload,
+    uploadExtChecker,
+    uploadPath
+} = require("../upload");
+
+const uploadPicExtsOpts = {
+    allowedExts: [
+        "jpg",
+        "jpeg",
+        "png",
+        "bmp",
+        "gif",
+        "webp"
+    ]
+};
 
 router.post("/create", async(req, res) => {
     const {
@@ -7,10 +25,10 @@ router.post("/create", async(req, res) => {
         vendor_uid,
         customer_uid,
     } = req.body;
-    
+
     try {
-        await database.exec`
-INSERT INTO transactions (t_event_eid, t_vendor_uid, t_customer_uid, t_status_tsid)
+        await database.exec `
+INSERT INTO transections (t_event_eid, t_vendor_uid, t_customer_uid, t_status_tsid)
 VALUES (${event_eid}, ${vendor_uid}, ${customer_uid}, 1)
 `;
         res.sendStatus(200);
@@ -20,15 +38,16 @@ VALUES (${event_eid}, ${vendor_uid}, ${customer_uid}, 1)
     }
 });
 
-router.post("/add/:id", async(req, res) => {
+router.post("/addItem/:id", async(req, res) => {
     const id = parseInt(req.params.id);
     const { items } = req.body;
-    if (items.length === 0) 
+    console.log(items)
+    if (items.length === 0)
         return res.sendStatus(400);
     try {
         for (const item of items)
-            await database.exec`
-INSERT INTO transaction_item (ti_item, ti_quantity, ti_price, ti_details, ti_tid) 
+            await database.exec `
+INSERT INTO transection_item (ti_item, ti_quantity, ti_price, ti_details, ti_tid) 
 VALUES (${item.name}, ${item.quantity}, ${item.price}, ${item.details}, ${id})
 `;
         res.sendStatus(200);
@@ -40,8 +59,8 @@ VALUES (${item.name}, ${item.quantity}, ${item.price}, ${item.details}, ${id})
 router.get("/get/:id", async(req, res) => {
     const id = parseInt(req.params.id);
     try {
-        const trans = await database.exec`SELECT * from transactions WHERE t_id = ${id}`;
-        const items = await database.exec`SELECT * from transaction_item WHERE ti_tid = ${id}`;
+        const trans = await database.exec `SELECT * from transections WHERE t_id = ${id}`;
+        const items = await database.exec `SELECT * from transection_item WHERE ti_tid = ${id}`;
         return res.json({
             ...trans,
             items
@@ -55,13 +74,20 @@ router.get("/get/:id", async(req, res) => {
 
 router.post("/setPaymentStatus/:id", async(req, resp) => {
     const id = parseInt(req.params.id);
-    //! need file send
+    const { file } = req.files;
+    if (!file) return resp.sendStatus(400);
+    const dotFileExt = uploadExtChecker(file.name, uploadPicExtsOpts);
+    if (!dotFileExt) return resp.sendStatus(400);
+
+    const fileName = uuidv4() + dotFileExt;
+    const filePath = `${uploadPath}/picture/receipt/${fileName}`;
+
+    await upload(file, filePath);
+
     try {
-        const res = await database.exec`
-UPDATE transactions
-SET t_status_tsid = 2
-WHERE t_id = ${id}
-`;
+        let checkStatus = await database.exec `SELECT t_status_tsid FROM transections WHERE t_id = ${id}`
+        if (checkStatus[0].t_status_tsid != 1) resp.sendStatus(400)
+        const res = await database.exec `UPDATE transections    SET t_status_tsid = 2 , t_receipt = ${fileName} WHERE t_id = ${id}`;
         if (res.affectedRows === 1)
             resp.sendStatus(200)
         else
@@ -72,18 +98,18 @@ WHERE t_id = ${id}
     }
 })
 
-router.post("/setTrackingNumber/:id", async (req, resp) => {
+router.post("/setTrackingNumber/:id", async(req, resp) => {
     const t_id = parseInt(req.params.id);
-    const { 
+    const {
         tracking_number: trackingNumber
     } = req.body
 
-    if (!trackingNumber) 
+    if (!trackingNumber)
         return resp.sendStatus(400);
 
     try {
-        const res = await database.exec`
-UPDATE transactions
+        const res = await database.exec `
+UPDATE transections
 SET t_status_tsid = 3, 
 t_tracking_id = ${trackingNumber}
 WHERE t_id = ${t_id} AND t_status_tsid = 2
@@ -101,8 +127,8 @@ WHERE t_id = ${t_id} AND t_status_tsid = 2
 router.post("/setAcceptStatus/:id", async(req, resp) => {
     try {
         const t_id = parseInt(req.params.id);
-        const res = await database.exec`
-UPDATE transactions
+        const res = await database.exec `
+UPDATE transections
 SET t_status_tsid = 4
 WHERE t_id = ${t_id} AND t_status_tsid = 3
 `;

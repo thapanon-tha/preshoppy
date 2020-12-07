@@ -38,12 +38,7 @@ VALUES (${event_eid}, ${vendor_uid}, ${customer_uid}, 1)
     }
 });
 
-<<<<<<< HEAD
-// Add itemlist //
-router.post("/addItem/:id", async(req, res) => {
-=======
 router.post("/add/:id", async(req, res) => {
->>>>>>> edit database schema
     const id = parseInt(req.params.id);
     const { items } = req.body;
     console.log(items)

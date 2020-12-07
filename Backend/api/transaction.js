@@ -1,7 +1,7 @@
 const router = require("express").Router();
-const database = require("../database");
 const { v4: uuidv4 } = require("uuid");
 
+const database = require("../database");
 const {
     upload,
     uploadExtChecker,
@@ -38,8 +38,12 @@ VALUES (${event_eid}, ${vendor_uid}, ${customer_uid}, 1)
     }
 });
 
+<<<<<<< HEAD
 // Add itemlist //
 router.post("/addItem/:id", async(req, res) => {
+=======
+router.post("/add/:id", async(req, res) => {
+>>>>>>> edit database schema
     const id = parseInt(req.params.id);
     const { items } = req.body;
     console.log(items)
@@ -68,7 +72,7 @@ const editableKeys = [
 // need to test //
 // * double loop //
 router.post("/edit/:id", async(req, res) => {
-    const t_id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id, 10);
     const updateBody = req.body;
     try {
         const updateKeys = [];
@@ -76,12 +80,13 @@ router.post("/edit/:id", async(req, res) => {
         for (const key of editableKeys)
             if (key in updateBody) {
                 const value = updateBody[key];
-                updateKeys.push(`e_${key} = ?`);
+                updateKeys.push(`ti_${key} = ?`);
                 updateValues.push(value);
             }
         if (updateKeys.length === 0) return res.sendStatus(400);
+        updateValues.push(id);
         const updateKeyString = updateKeys.join(",");
-        const ret = await database.rawExec(`UPDATE transaction_item SET ${updateKeyString} WHERE e_id = ? AND t_id = ${t_id}`, updateValues);
+        const ret = await database.rawExec(`UPDATE transaction_item SET ${updateKeyString} WHERE ti_id = ?`, updateValues);
 
         if (ret.affectedRows === 1)
             res.sendStatus(200);
@@ -113,6 +118,7 @@ router.get("/get/:id", async(req, res) => {
 router.post("/setPaymentStatus/:id", async(req, resp) => {
     const id = parseInt(req.params.id);
     const { file } = req.files;
+
     if (!file) return resp.sendStatus(400);
     const dotFileExt = uploadExtChecker(file.name, uploadPicExtsOpts);
     if (!dotFileExt) return resp.sendStatus(400);
@@ -120,12 +126,14 @@ router.post("/setPaymentStatus/:id", async(req, resp) => {
     const fileName = uuidv4() + dotFileExt;
     const filePath = `${uploadPath}/picture/receipt/${fileName}`;
 
-    await upload(file, filePath);
-
     try {
-        let checkStatus = await database.exec `SELECT t_status_tsid FROM transactions WHERE t_id = ${id}`
-        if (checkStatus[0].t_status_tsid != 1) resp.sendStatus(400)
-        const res = await database.exec `UPDATE transactions    SET t_status_tsid = 2 , t_receipt = ${fileName} WHERE t_id = ${id}`;
+        await upload(file, filePath);
+
+        const res = await database.exec `
+UPDATE transactions
+SET t_status_tsid = 2, t_receipt = ${fileName}
+WHERE t_id = ${id} AND t_status_tsid = 1
+`;
         if (res.affectedRows === 1)
             resp.sendStatus(200)
         else

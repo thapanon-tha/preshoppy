@@ -18,7 +18,7 @@ const uploadPicExtsOpts = {
         "webp"
     ]
 };
-
+// Create transaction //
 router.post("/create", async(req, res) => {
     const {
         event_eid,
@@ -38,6 +38,7 @@ VALUES (${event_eid}, ${vendor_uid}, ${customer_uid}, 1)
     }
 });
 
+// Add itemlist //
 router.post("/addItem/:id", async(req, res) => {
     const id = parseInt(req.params.id);
     const { items } = req.body;
@@ -63,7 +64,9 @@ const editableKeys = [
     "details",
     "id"
 ];
-
+//TODO edit item list//
+// need to test //
+// * double loop //
 router.post("/edit/:id", async(req, res) => {
     const t_id = parseInt(req.params.id, 10);
     const updateBody = req.body;
@@ -90,7 +93,7 @@ router.post("/edit/:id", async(req, res) => {
     }
 });
 
-
+// get transaction info 
 router.get("/get/:id", async(req, res) => {
     const id = parseInt(req.params.id);
     try {
@@ -106,7 +109,7 @@ router.get("/get/:id", async(req, res) => {
     }
 })
 
-
+//! set transaction  status to wait tracking number //
 router.post("/setPaymentStatus/:id", async(req, resp) => {
     const id = parseInt(req.params.id);
     const { file } = req.files;
@@ -133,6 +136,9 @@ router.post("/setPaymentStatus/:id", async(req, resp) => {
     }
 })
 
+
+//! set transaction  status to wait customer accept item //
+//TODO test//
 router.post("/setTrackingNumber/:id", async(req, resp) => {
     const t_id = parseInt(req.params.id);
     const {
@@ -159,6 +165,8 @@ WHERE t_id = ${t_id} AND t_status_tsid = 2
     }
 });
 
+//! set transaction  status to complete//
+//TODO test//
 router.post("/setAcceptStatus/:id", async(req, resp) => {
     try {
         const t_id = parseInt(req.params.id);

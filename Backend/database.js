@@ -12,7 +12,7 @@ const pool = mariadb.createPool({
 });
 
 pool.on(
-    'connection', 
+    "connection", 
     (conn) => 
         console.log(`connection ${conn.threadId} has been created in pool`)
 );
@@ -25,8 +25,6 @@ mod.rawExec = async (command, values) => {
         const result = await conn.query(command, values);
         conn.release();
         return result;
-    } catch (err) {
-        throw err;
     } finally {
         if (conn) conn.end();
     }

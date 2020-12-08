@@ -25,6 +25,11 @@
             "error",
             "always"
         ],
-        "allowEmptyCatch": true
+        "no-empty": [
+            "error", 
+            {
+                "allowEmptyCatch": true
+            }
+        ]
     }
 }

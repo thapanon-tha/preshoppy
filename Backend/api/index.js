@@ -9,6 +9,8 @@ const UpgradeAccount = require("./upgradeAccount");
 
 const Transaction = require("./transaction");
 
+const Matching = require("./matching");
+
 
 router.use("/event", Events);
 
@@ -17,6 +19,8 @@ router.use("/register", Register);
 
 router.use("/upgradeAccount", UpgradeAccount);
 
-router.use("/Transaction", Transaction);
+router.use("/transaction", Transaction);
+
+router.use("/matching", Matching);
 
 module.exports = router;

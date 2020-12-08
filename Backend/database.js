@@ -12,7 +12,7 @@ const pool = mariadb.createPool({
 });
 
 pool.on(
-    'connection', 
+    "connection", 
     (conn) => 
         console.log(`connection ${conn.threadId} has been created in pool`)
 );

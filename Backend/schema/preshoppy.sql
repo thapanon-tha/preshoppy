@@ -179,31 +179,23 @@ ALTER TABLE `user`
   ADD CONSTRAINT `FK_55` FOREIGN KEY (`u_vendor_status_uvsid`) REFERENCES `user_vendor_status` (`uvs_status`);
 ALTER TABLE `user_address`
   ADD CONSTRAINT `FK_129` FOREIGN KEY (`us_uid`) REFERENCES `user` (`u_id`);
-
--- new schema for matching --
-
 CREATE TABLE `matching` (
   `m_vendor_uid` int(11) DEFAULT NULL,
   `m_customer_uid` int(11) DEFAULT NULL,
   `m_eid` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 INSERT INTO `matching` (`m_vendor_uid`, `m_customer_uid`, `m_eid`) VALUES
 (1, NULL, 3),
 (3, 3, 2),
 (4, 1, 3);
-
 ALTER TABLE `matching`
   ADD KEY `m_customer_uid` (`m_customer_uid`),
   ADD KEY `m_vendor_uid` (`m_vendor_uid`),
   ADD KEY `m_eid` (`m_eid`);
-
 ALTER TABLE `matching`
-  ADD CONSTRAINT `matching_ibfk_1` FOREIGN KEY (`m_customer_uid`) REFERENCES `user` (`u_id`),
-  ADD CONSTRAINT `matching_ibfk_2` FOREIGN KEY (`m_vendor_uid`) REFERENCES `user` (`u_id`),
-  ADD CONSTRAINT `matching_ibfk_3` FOREIGN KEY (`m_eid`) REFERENCES `events` (`e_id`)
-
-
+  ADD CONSTRAINT `FK_1` FOREIGN KEY (`m_customer_uid`) REFERENCES `user` (`u_id`),
+  ADD CONSTRAINT `FK_2` FOREIGN KEY (`m_vendor_uid`) REFERENCES `user` (`u_id`),
+  ADD CONSTRAINT `FK_3` FOREIGN KEY (`m_eid`) REFERENCES `events` (`e_id`)
 COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

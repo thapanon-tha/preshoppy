@@ -1,32 +1,32 @@
 const router = require("express").Router();
 const database = require("../database");
 
-router.get("/info/:e_id", async(req, res) => {
+router.get("/info/:e_id", async (req, res) => {
     const e_id = parseInt(req.params.e_id);
     try {
-        countEvent = await database.exec`
+        const countEvent = await database.exec`
 SELECT COUNT(m_customer_uid) AS customer_count, COUNT(m_vendor_uid) AS vendor_count 
 FROM matching WHERE m_eid = ${e_id}
 `;
-        res.json(countEvent[0]);
+        const [first] = countEvent;
+        res.json(first);
     } catch (err) {
         res.send(err);
     }
 });
 
-router.post("/request/vendor/:id", async (req, res) => {
-    const u_id = parseInt(req.params.id)
-    const { e_id } = req.body
+router.post("/request/vendor/:id", async (req, resp) => {
+    const u_id = parseInt(req.params.id);
+    const { e_id } = req.body;
     try {
-        resq = await database.exec` SELECT * FROM matching WHERE m_vendor_uid is NULL AND m_eid = ${e_id}`
-        console.log(resq[0])
-        if (resq[0] === undefined) {
-            database.exec`INSERT INTO matching (m_vendor_uid, m_eid)
-            VALUES (${u_id},${e_id})`
-            return res.sendStatus(200)
+        const res = await database.exec`SELECT * FROM matching WHERE m_vendor_uid is NULL AND m_eid = ${e_id}`;
+        if (res.lange === 0) {
+            await database.exec`
+INSERT INTO matching (m_vendor_uid, m_eid)
+VALUES (${u_id}, ${e_id})
+`;
         } else {
-            await database.exec`UPDATE matching set m_vendor_uid = ${u_id} WHERE m_id = ${resq[0].m_id}`
-            return res.sendStatus(200)
+            await database.exec`UPDATE matching set m_vendor_uid = ${u_id} WHERE m_id = ${res[0].m_id}`;
         }
     } catch (err) {
         return res.send(err)
@@ -38,7 +38,7 @@ router.post("/request/customer/:id", async (req, res) => {
     const u_id = parseInt(req.params.id)
     const { e_id } = req.body
     try {
-        resq = await database.exec` SELECT m_vendor_uid , COUNT(m_customer_uid) AS customer_count , m_id 
+        const resq = await database.exec` SELECT m_vendor_uid , COUNT(m_customer_uid) AS customer_count , m_id 
                                     FROM matching WHERE m_eid = ${e_id} AND m_vendor_uid IS NOT NULL
                                     GROUP BY m_vendor_uid  
                                     ORDER BY customer_count 
@@ -57,10 +57,10 @@ router.post("/request/customer/:id", async (req, res) => {
             return res.sendStatus(200)
         }
     } catch (err) {
-        return res.send(err)
+        resp.send(err);
     }
-})
+});
 
 
 
-module.exports = router
+module.exports = router;

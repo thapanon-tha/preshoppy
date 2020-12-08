@@ -8,7 +8,7 @@ const {
     uploadPath
 } = require("../upload");
 
-router.get("/list", async(req, resp) => {
+router.get("/list", async (_req, resp) => {
     try {
         const res = await database.exec `SELECT u_id, u_firstname, u_lastname, u_reputation, u_profile, u_id_img, u_command_img FROM user WHERE u_vendor_status_uvsid = 4`;
         resp.json(res);
@@ -28,7 +28,7 @@ router.post("/set/:id", async (req, resp) => {
         const id = parseInt(req.params.id);
         const status = parseInt(req.body.status);
 
-        if (!status in statusNumLookup) return resp.sendStatus(400);
+        if (!(status in statusNumLookup)) return resp.sendStatus(400);
 
         const statusNum = statusNumLookup[status];
         if (!statusNum) return resp.sendStatus(400);
